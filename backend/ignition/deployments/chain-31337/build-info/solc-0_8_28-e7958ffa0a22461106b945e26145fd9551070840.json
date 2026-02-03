@@ -1,0 +1,39 @@
+{
+  "_format": "hh3-sol-build-info-1",
+  "id": "solc-0_8_28-e7958ffa0a22461106b945e26145fd9551070840",
+  "solcVersion": "0.8.28",
+  "solcLongVersion": "0.8.28+commit.7893614a",
+  "userSourceNameMap": {
+    "contracts/Crowdfunding.sol": "project/contracts/Crowdfunding.sol"
+  },
+  "input": {
+    "language": "Solidity",
+    "settings": {
+      "evmVersion": "cancun",
+      "optimizer": {
+        "enabled": true,
+        "runs": 200
+      },
+      "outputSelection": {
+        "*": {
+          "": [
+            "ast"
+          ],
+          "*": [
+            "abi",
+            "evm.bytecode",
+            "evm.deployedBytecode",
+            "evm.methodIdentifiers",
+            "metadata"
+          ]
+        }
+      },
+      "remappings": []
+    },
+    "sources": {
+      "project/contracts/Crowdfunding.sol": {
+        "content": "// SPDX-License-Identifier: MIT\r\npragma solidity ^0.8.20;\r\n\r\ncontract Crowdfunding {\r\n    struct Campaign {\r\n        address owner;\r\n        string title;\r\n        string description;\r\n        uint256 target;\r\n        uint256 deadline;\r\n        uint256 amountCollected;\r\n        bool claimed;\r\n    }\r\n\r\n    mapping(uint256 => Campaign) public campaigns;\r\n    uint256 public numberOfCampaigns = 0;\r\n\r\n    function createCampaign(string memory _title, string memory _description, uint256 _target, uint256 _deadline) public returns (uint256) {\r\n        require(_deadline > block.timestamp, \"The deadline should be a date in the future.\");\r\n\r\n        Campaign storage campaign = campaigns[numberOfCampaigns];\r\n        campaign.owner = msg.sender;\r\n        campaign.title = _title;\r\n        campaign.description = _description;\r\n        campaign.target = _target;\r\n        campaign.deadline = _deadline;\r\n        campaign.amountCollected = 0;\r\n        campaign.claimed = false;\r\n\r\n        numberOfCampaigns++;\r\n        return numberOfCampaigns - 1;\r\n    }\r\n\r\n    function donateToCampaign(uint256 _id) public payable {\r\n        uint256 amount = msg.value;\r\n        Campaign storage campaign = campaigns[_id];\r\n        require(block.timestamp < campaign.deadline, \"Campaign has ended.\");\r\n        campaign.amountCollected = campaign.amountCollected + amount;\r\n    }\r\n\r\n    function withdraw(uint256 _id) public {\r\n        Campaign storage campaign = campaigns[_id];\r\n        require(msg.sender == campaign.owner, \"Only owner can withdraw.\");\r\n        require(campaign.amountCollected >= campaign.target, \"Target not reached.\");\r\n        require(!campaign.claimed, \"Funds already claimed.\");\r\n\r\n        campaign.claimed = true;\r\n        (bool sent,) = payable(campaign.owner).call{value: campaign.amountCollected}(\"\");\r\n        require(sent, \"Failed to send Ether\");\r\n    }\r\n}"
+      }
+    }
+  }
+}
