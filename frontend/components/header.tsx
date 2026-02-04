@@ -33,7 +33,7 @@ export function Header() {
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">
-            <Link href="#projects" className="text-muted-foreground hover:text-foreground transition-colors">
+            <Link href="/projects" className="text-muted-foreground hover:text-foreground transition-colors">
               {t("nav.projects")}
             </Link>
             <Link href="#how-it-works" className="text-muted-foreground hover:text-foreground transition-colors">
@@ -54,7 +54,7 @@ export function Header() {
                 {t("nav.login")}
               </Button>
             </Link>
-            <Link href="/register">
+            <Link href="/login">
               <Button className="bg-primary text-primary-foreground hover:bg-primary/90">
                 {t("nav.startProject")}
               </Button>
@@ -75,7 +75,7 @@ export function Header() {
         {mobileMenuOpen && (
           <div className="md:hidden py-4 border-t border-border">
             <nav className="flex flex-col gap-4">
-              <Link href="#projects" className="text-muted-foreground hover:text-foreground transition-colors">
+              <Link href="/projects" className="text-muted-foreground hover:text-foreground transition-colors">
                 {t("nav.projects")}
               </Link>
               <Link href="#how-it-works" className="text-muted-foreground hover:text-foreground transition-colors">
@@ -93,7 +93,7 @@ export function Header() {
                     {t("nav.login")}
                   </Button>
                 </Link>
-                <Link href="/register">
+                <Link href="/login">
                   <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
                     {t("nav.startProject")}
                   </Button>

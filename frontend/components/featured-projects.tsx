@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -115,10 +116,12 @@ export function FeaturedProjects() {
         </div>
 
         <div className="mt-12 text-center">
-          <Button variant="outline" size="lg" className="border-border text-foreground hover:bg-secondary bg-transparent">
-            {t("projects.viewAll")}
-            <ArrowUpRight className="ml-2 w-4 h-4" />
-          </Button>
+          <Link href="/projects">
+            <Button variant="outline" size="lg" className="border-border text-foreground hover:bg-secondary bg-transparent">
+              {t("projects.viewAll")}
+              <ArrowUpRight className="ml-2 w-4 h-4" />
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
