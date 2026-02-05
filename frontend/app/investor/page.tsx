@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -14,86 +14,55 @@ import {
   Wallet,
   TrendingUp,
   Clock,
-  Users,
-  Search,
   Heart,
+  Search,
   ExternalLink,
   X,
+  Loader2,
+  Coins,
 } from "lucide-react";
 import { useWallet } from "@/lib/wallet-context";
-
-const mockCampaigns = [
-  {
-    id: "1",
-    title: "EcoChain: Carbon Credit Marketplace",
-    description: "A decentralized platform for trading verified carbon credits using blockchain technology.",
-    category: "Environment",
-    raised: 45.8,
-    goal: 100,
-    backers: 234,
-    daysLeft: 18,
-    image: "/placeholder.svg",
-    creator: "0x1a2b...3c4d",
-    verified: true,
-  },
-  {
-    id: "2",
-    title: "MedVault: Healthcare Data Security",
-    description: "Secure, patient-controlled medical records stored on the blockchain.",
-    category: "Healthcare",
-    raised: 78.5,
-    goal: 150,
-    backers: 456,
-    daysLeft: 12,
-    image: "/placeholder.svg",
-    creator: "0x5e6f...7g8h",
-    verified: true,
-  },
-  {
-    id: "3",
-    title: "ArtBlock: NFT Gallery Platform",
-    description: "Democratizing art ownership through fractional NFT investments.",
-    category: "Art & Culture",
-    raised: 32.1,
-    goal: 80,
-    backers: 189,
-    daysLeft: 25,
-    image: "/placeholder.svg",
-    creator: "0x9i0j...1k2l",
-    verified: false,
-  },
-  {
-    id: "4",
-    title: "DeFi Lending Protocol",
-    description: "Decentralized lending platform with competitive interest rates.",
-    category: "DeFi",
-    raised: 120.5,
-    goal: 200,
-    backers: 678,
-    daysLeft: 8,
-    image: "/placeholder.svg",
-    creator: "0x3m4n...5o6p",
-    verified: true,
-  },
-];
+import {
+  fetchCampaigns,
+  contributeTx,
+  getTokenBalance,
+  type Campaign,
+} from "@/lib/contracts";
 
 function DonateModal({
   campaign,
   onClose,
+  onDonated,
   t,
 }: {
-  campaign: typeof mockCampaigns[0];
+  campaign: Campaign;
   onClose: () => void;
+  onDonated: () => void;
   t: (key: string) => string;
 }) {
   const [amount, setAmount] = useState("");
   const [confirming, setConfirming] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [txHash, setTxHash] = useState<string | null>(null);
 
   const handleDonate = async () => {
     setConfirming(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setConfirming(false);
-    onClose();
+    setError(null);
+    setTxHash(null);
+
+    try {
+      const hash = await contributeTx(campaign.id, amount);
+      setTxHash(hash);
+      setTimeout(() => {
+        onDonated();
+        onClose();
+      }, 2000);
+    } catch (err: any) {
+      console.error("Donation error:", err);
+      setError(err?.reason || err?.message || "Transaction failed");
+    } finally {
+      setConfirming(false);
+    }
   };
 
   return (
@@ -113,7 +82,9 @@ function DonateModal({
         <CardContent className="space-y-4">
           <div className="p-4 bg-secondary rounded-lg">
             <h4 className="font-semibold text-foreground mb-1">{campaign.title}</h4>
-            <p className="text-sm text-muted-foreground">{campaign.description}</p>
+            <p className="text-sm text-muted-foreground">
+              {t("creator.raised")}: {parseFloat(campaign.totalRaised).toFixed(4)} / {parseFloat(campaign.goal).toFixed(2)} ETH
+            </p>
           </div>
 
           <div>
@@ -145,6 +116,18 @@ function DonateModal({
             ))}
           </div>
 
+          {error && (
+            <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-500 text-sm">
+              {error}
+            </div>
+          )}
+
+          {txHash && (
+            <div className="p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-500 text-sm">
+              Donation successful! TX: {txHash.substring(0, 10)}...
+            </div>
+          )}
+
           <Button
             className="w-full"
             size="lg"
@@ -153,7 +136,7 @@ function DonateModal({
           >
             {confirming ? (
               <div className="flex items-center gap-2">
-                <div className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                <Loader2 className="w-4 h-4 animate-spin" />
                 {t("wallet.connecting")}
               </div>
             ) : (
@@ -169,16 +152,39 @@ function DonateModal({
 function InvestorContent() {
   const { t } = useI18n();
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedCampaign, setSelectedCampaign] = useState<typeof mockCampaigns[0] | null>(null);
-  const { walletAddress } = useWallet();
-  const filteredCampaigns = mockCampaigns.filter(
+  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
+  const { walletAddress, balance } = useWallet();
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [tokenBalance, setTokenBalance] = useState("0");
+
+  const loadData = async () => {
+    setLoading(true);
+    try {
+      const data = await fetchCampaigns();
+      setCampaigns(data);
+      if (walletAddress) {
+        const tb = await getTokenBalance(walletAddress);
+        setTokenBalance(tb);
+      }
+    } catch (err) {
+      console.error("Failed to load campaigns:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadData();
+  }, [walletAddress]);
+
+  const filteredCampaigns = campaigns.filter(
     (campaign) =>
-      campaign.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      campaign.description.toLowerCase().includes(searchQuery.toLowerCase())
+      campaign.title.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const totalInvested = 12.5;
-  const projectsBacked = 5;
+  // Only show active (non-finalized, deadline not passed) campaigns
+  const activeCampaigns = filteredCampaigns.filter((c) => !c.finalized && c.daysLeft > 0);
 
   return (
     <div className="min-h-screen bg-background">
@@ -216,11 +222,27 @@ function InvestorContent() {
             <CardContent className="p-6">
               <div className="flex items-center gap-4">
                 <div className="p-3 bg-accent/20 rounded-xl">
-                  <TrendingUp className="w-6 h-6 text-accent" />
+                  <Wallet className="w-6 h-6 text-accent" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">{t("investor.totalInvested")}</p>
-                  <p className="text-2xl font-bold text-foreground">{totalInvested} ETH</p>
+                  <p className="text-sm text-muted-foreground">{t("creator.walletBalance")}</p>
+                  <p className="text-2xl font-bold text-foreground">{balance || "..."} ETH</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="border-border bg-card">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-accent/20 rounded-xl">
+                  <Coins className="w-6 h-6 text-accent" />
+                </div>
+                <div>
+                  <p className="text-sm text-muted-foreground">CFRE Tokens</p>
+                  <p className="text-2xl font-bold text-foreground">
+                    {parseFloat(tokenBalance).toFixed(2)}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -233,22 +255,8 @@ function InvestorContent() {
                   <Heart className="w-6 h-6 text-accent" />
                 </div>
                 <div>
-                  <p className="text-sm text-muted-foreground">{t("investor.projectsBacked")}</p>
-                  <p className="text-2xl font-bold text-foreground">{projectsBacked}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          <Card className="border-border bg-card">
-            <CardContent className="p-6">
-              <div className="flex items-center gap-4">
-                <div className="p-3 bg-accent/20 rounded-xl">
-                  <Wallet className="w-6 h-6 text-accent" />
-                </div>
-                <div>
-                  <p className="text-sm text-muted-foreground">{t("creator.walletBalance")}</p>
-                  <p className="text-2xl font-bold text-foreground">25.8 ETH</p>
+                  <p className="text-sm text-muted-foreground">{t("investor.activeCampaigns")}</p>
+                  <p className="text-2xl font-bold text-foreground">{campaigns.length}</p>
                 </div>
               </div>
             </CardContent>
@@ -272,25 +280,22 @@ function InvestorContent() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCampaigns.map((campaign) => {
-              const progress = (campaign.raised / campaign.goal) * 100;
-
-              return (
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <Loader2 className="w-8 h-8 animate-spin text-accent" />
+            </div>
+          ) : activeCampaigns.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {activeCampaigns.map((campaign) => (
                 <Card key={campaign.id} className="border-border bg-card overflow-hidden group">
                   <div className="aspect-video bg-secondary relative">
                     <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
                       <Hexagon className="w-16 h-16" />
                     </div>
-                    <div className="absolute top-3 left-3 flex gap-2">
+                    <div className="absolute top-3 left-3">
                       <Badge variant="secondary" className="bg-background/80 backdrop-blur-sm">
-                        {campaign.category}
+                        Campaign #{campaign.id}
                       </Badge>
-                      {campaign.verified && (
-                        <Badge className="bg-accent text-accent-foreground">
-                          {t("projectsPage.verified")}
-                        </Badge>
-                      )}
                     </div>
                   </div>
 
@@ -298,23 +303,26 @@ function InvestorContent() {
                     <h3 className="font-semibold text-foreground mb-2 line-clamp-1">
                       {campaign.title}
                     </h3>
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
-                      {campaign.description}
-                    </p>
 
                     <div className="mb-4">
                       <div className="flex justify-between text-sm mb-2">
-                        <span className="text-foreground font-medium">{campaign.raised} ETH</span>
-                        <span className="text-muted-foreground">{t("projectsPage.goal")}: {campaign.goal} ETH</span>
+                        <span className="text-foreground font-medium">
+                          {parseFloat(campaign.totalRaised).toFixed(4)} ETH
+                        </span>
+                        <span className="text-muted-foreground">
+                          {t("projectsPage.goal")}: {parseFloat(campaign.goal).toFixed(2)} ETH
+                        </span>
                       </div>
-                      <Progress value={progress} className="h-2" />
-                      <p className="text-xs text-accent mt-1">{progress.toFixed(0)}% {t("projectsPage.funded")}</p>
+                      <Progress value={Math.min(campaign.progress, 100)} className="h-2" />
+                      <p className="text-xs text-accent mt-1">
+                        {campaign.progress.toFixed(0)}% {t("projectsPage.funded")}
+                      </p>
                     </div>
 
                     <div className="flex items-center justify-between text-sm text-muted-foreground mb-4">
                       <div className="flex items-center gap-1">
-                        <Users className="w-4 h-4" />
-                        <span>{campaign.backers} {t("projects.backers")}</span>
+                        <TrendingUp className="w-4 h-4" />
+                        <span>{parseFloat(campaign.totalRaised).toFixed(2)} ETH</span>
                       </div>
                       <div className="flex items-center gap-1">
                         <Clock className="w-4 h-4" />
@@ -335,14 +343,17 @@ function InvestorContent() {
                     </div>
                   </CardContent>
                 </Card>
-              );
-            })}
-          </div>
-
-          {filteredCampaigns.length === 0 && (
+              ))}
+            </div>
+          ) : (
             <div className="text-center py-12">
+              <Hexagon className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
               <p className="text-muted-foreground">{t("projectsPage.noProjects")}</p>
-              <p className="text-sm text-muted-foreground mt-1">{t("projectsPage.tryAdjusting")}</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                {campaigns.length === 0
+                  ? "No campaigns have been created yet. Create one on the Creator page!"
+                  : t("projectsPage.tryAdjusting")}
+              </p>
             </div>
           )}
         </div>
@@ -353,6 +364,7 @@ function InvestorContent() {
         <DonateModal
           campaign={selectedCampaign}
           onClose={() => setSelectedCampaign(null)}
+          onDonated={loadData}
           t={t}
         />
       )}

@@ -11,7 +11,11 @@ contract CrowdToken is ERC20 {
         minter = msg.sender;
     }
 
-    // Функция минтинга токенов за вклады [cite: 45, 49]
+    function transferMinter(address _newMinter) external {
+        require(msg.sender == minter, "Only minter can transfer");
+        minter = _newMinter;
+    }
+
     function mint(address to, uint256 amount) external {
         require(msg.sender == minter, "Only contract can mint");
         _mint(to, amount);

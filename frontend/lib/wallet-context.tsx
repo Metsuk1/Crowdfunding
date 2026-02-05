@@ -1,10 +1,13 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { BrowserProvider } from "ethers";
+import { BrowserProvider, formatEther } from "ethers";
+
+const HARDHAT_CHAIN_ID = "0x7A69"; // 31337 in hex
 
 interface WalletContextType {
     walletAddress: string | null;
+    balance: string | null;
     connectWallet: () => Promise<void>;
     disconnectWallet: () => void;
     isConnecting: boolean;
@@ -13,12 +16,54 @@ interface WalletContextType {
 
 const WalletContext = createContext<WalletContextType | null>(null);
 
+async function switchToHardhat() {
+    const ethereum = (window as any).ethereum;
+    if (!ethereum) return;
+
+    try {
+        // Try switching to Hardhat network
+        await ethereum.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: HARDHAT_CHAIN_ID }],
+        });
+    } catch (switchError: any) {
+        // Chain not added yet — add it
+        if (switchError.code === 4902) {
+            await ethereum.request({
+                method: "wallet_addEthereumChain",
+                params: [
+                    {
+                        chainId: HARDHAT_CHAIN_ID,
+                        chainName: "Hardhat Localhost",
+                        nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+                        rpcUrls: ["http://127.0.0.1:8545"],
+                    },
+                ],
+            });
+        } else {
+            throw switchError;
+        }
+    }
+}
+
 export function WalletProvider({ children }: { children: ReactNode }) {
     const [walletAddress, setWalletAddress] = useState<string | null>(null);
+    const [balance, setBalance] = useState<string | null>(null);
     const [isConnecting, setIsConnecting] = useState(false);
     const [isConnected, setIsConnected] = useState(false);
 
-    // Check for existing connection on mount
+    const fetchBalance = async (address: string) => {
+        try {
+            if (typeof window !== "undefined" && (window as any).ethereum) {
+                const provider = new BrowserProvider((window as any).ethereum);
+                const bal = await provider.getBalance(address);
+                setBalance(parseFloat(formatEther(bal)).toFixed(4));
+            }
+        } catch {
+            setBalance(null);
+        }
+    };
+
     useEffect(() => {
         const checkConnection = async () => {
             if (typeof window !== "undefined" && (window as any).ethereum) {
@@ -28,13 +73,13 @@ export function WalletProvider({ children }: { children: ReactNode }) {
                     if (accounts.length > 0) {
                         setWalletAddress(accounts[0].address);
                         setIsConnected(true);
+                        fetchBalance(accounts[0].address);
                     }
                 } catch (error) {
                     console.error("Failed to check wallet connection:", error);
                 }
             }
         };
-
         checkConnection();
     }, []);
 
@@ -42,15 +87,17 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         setIsConnecting(true);
         try {
             if (typeof window !== "undefined" && (window as any).ethereum) {
+                // Switch to Hardhat network first
+                await switchToHardhat();
+
                 const provider = new BrowserProvider((window as any).ethereum);
                 const accounts = await provider.send("eth_requestAccounts", []);
                 if (accounts.length > 0) {
-                    // Get the signer to ensure we have the correct address format if needed, 
-                    // though eth_requestAccounts returns strings. provider.getSigner().getAddress() is safer.
                     const signer = await provider.getSigner();
                     const address = await signer.getAddress();
                     setWalletAddress(address);
                     setIsConnected(true);
+                    fetchBalance(address);
                 }
             } else {
                 alert("MetaMask is not installed. Please install it to use this feature.");
@@ -64,6 +111,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
 
     const disconnectWallet = () => {
         setWalletAddress(null);
+        setBalance(null);
         setIsConnected(false);
     };
 
@@ -71,6 +119,7 @@ export function WalletProvider({ children }: { children: ReactNode }) {
         <WalletContext.Provider
             value={{
                 walletAddress,
+                balance,
                 connectWallet,
                 disconnectWallet,
                 isConnecting,
