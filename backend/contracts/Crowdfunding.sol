@@ -1,51 +1,57 @@
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
-
 contract Crowdfunding {
     struct Campaign {
-        address owner;
-        string title;
-        string description;
-        uint256 target;
-        uint256 deadline;
-        uint256 amountCollected;
-        bool claimed;
+        string title;        // Название [cite: 39]
+        uint256 goal;       // Цель в ETH [cite: 40]
+        uint256 deadline;   // Дедлайн [cite: 41]
+        uint256 totalRaised;
+        bool finalized;     // Статус завершения [cite: 44]
     }
 
+    RewardToken public token;
+    uint256 public campaignCount;
     mapping(uint256 => Campaign) public campaigns;
-    uint256 public numberOfCampaigns = 0;
+    mapping(uint256 => mapping(address => uint256)) public contributions; // Учет вкладов 
 
-    function createCampaign(string memory _title, string memory _description, uint256 _target, uint256 _deadline) public returns (uint256) {
-        require(_deadline > block.timestamp, "The deadline should be a date in the future.");
+    event CampaignCreated(uint256 id, string title, uint256 goal, uint256 deadline);
+    event ContributionMade(uint256 id, address contributor, uint256 amount);
 
-        Campaign storage campaign = campaigns[numberOfCampaigns];
-        campaign.owner = msg.sender;
-        campaign.title = _title;
-        campaign.description = _description;
-        campaign.target = _target;
-        campaign.deadline = _deadline;
-        campaign.amountCollected = 0;
-        campaign.claimed = false;
-
-        numberOfCampaigns++;
-        return numberOfCampaigns - 1;
+    constructor(address _tokenAddress) {
+        token = RewardToken(_tokenAddress);
     }
 
-    function donateToCampaign(uint256 _id) public payable {
-        uint256 amount = msg.value;
-        Campaign storage campaign = campaigns[_id];
-        require(block.timestamp < campaign.deadline, "Campaign has ended.");
-        campaign.amountCollected = campaign.amountCollected + amount;
+    // 1. Создание кампании 
+    function createCampaign(string memory _title, uint256 _goal, uint256 _durationSeconds) public {
+        campaignCount++;
+        campaigns[campaignCount] = Campaign({
+            title: _title,
+            goal: _goal,
+            deadline: block.timestamp + _durationSeconds,
+            totalRaised: 0,
+            finalized: false
+        });
+        emit CampaignCreated(campaignCount, _title, _goal, block.timestamp + _durationSeconds);
     }
 
-    function withdraw(uint256 _id) public {
-        Campaign storage campaign = campaigns[_id];
-        require(msg.sender == campaign.owner, "Only owner can withdraw.");
-        require(campaign.amountCollected >= campaign.target, "Target not reached.");
-        require(!campaign.claimed, "Funds already claimed.");
+    // 2. Взнос в активную кампанию 
+    function contribute(uint256 _campaignId) public payable {
+        Campaign storage c = campaigns[_campaignId];
+        require(block.timestamp < c.deadline, "Campaign ended"); // Проверка дедлайна [cite: 41]
+        require(msg.value > 0, "Send ETH to contribute");
 
-        campaign.claimed = true;
-        (bool sent,) = payable(campaign.owner).call{value: campaign.amountCollected}("");
-        require(sent, "Failed to send Ether");
+        c.totalRaised += msg.value;
+        contributions[_campaignId][msg.sender] += msg.value;
+
+        // 3. Выдача токенов пропорционально вкладу [cite: 25, 45]
+        // 1 ETH = 100 Reward Tokens (для примера)
+        token.mint(msg.sender, msg.value * 100);
+
+        emit ContributionMade(_campaignId, msg.sender, msg.value);
+    }
+
+    // 4. Завершение кампании [cite: 44]
+    function finalizeCampaign(uint256 _campaignId) public {
+        Campaign storage c = campaigns[_campaignId];
+        require(block.timestamp >= c.deadline, "Deadline not reached");
+        c.finalized = true;
     }
 }
