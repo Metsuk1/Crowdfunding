@@ -723,3 +723,573 @@ export const authTranslations: Translations = {
 
 // Merge auth translations with main translations
 Object.assign(translations, authTranslations);
+
+// Projects page translations
+export const projectsPageTranslations: Translations = {
+  "projectsPage.title": {
+    en: "Explore Projects",
+    ru: "Исследуйте проекты",
+    kk: "Жобаларды зерттеңіз",
+  },
+  "projectsPage.subtitle": {
+    en: "Discover and invest in innovative blockchain projects",
+    ru: "Откройте и инвестируйте в инновационные блокчейн-проекты",
+    kk: "Инновациялық блокчейн жобаларын табыңыз және инвестиция салыңыз",
+  },
+  "projectsPage.search": {
+    en: "Search projects...",
+    ru: "Поиск проектов...",
+    kk: "Жобаларды іздеу...",
+  },
+  "projectsPage.allCategories": {
+    en: "All Categories",
+    ru: "Все категории",
+    kk: "Барлық санаттар",
+  },
+  "projectsPage.sortBy": {
+    en: "Sort by",
+    ru: "Сортировать",
+    kk: "Сұрыптау",
+  },
+  "projectsPage.mostFunded": {
+    en: "Most Funded",
+    ru: "Больше всего собрано",
+    kk: "Ең көп қаржыландырылған",
+  },
+  "projectsPage.newest": {
+    en: "Newest",
+    ru: "Новые",
+    kk: "Жаңа",
+  },
+  "projectsPage.endingSoon": {
+    en: "Ending Soon",
+    ru: "Скоро завершатся",
+    kk: "Жақында аяқталады",
+  },
+  "projectsPage.mostBackers": {
+    en: "Most Backers",
+    ru: "Больше всего спонсоров",
+    kk: "Ең көп демеушілер",
+  },
+  "projectsPage.fundProject": {
+    en: "Fund This Project",
+    ru: "Инвестировать",
+    kk: "Инвестициялау",
+  },
+  "projectsPage.viewDetails": {
+    en: "View Details",
+    ru: "Подробнее",
+    kk: "Толығырақ",
+  },
+  "projectsPage.funded": {
+    en: "funded",
+    ru: "собрано",
+    kk: "жиналды",
+  },
+  "projectsPage.goal": {
+    en: "Goal",
+    ru: "Цель",
+    kk: "Мақсат",
+  },
+  "projectsPage.minInvestment": {
+    en: "Min. Investment",
+    ru: "Мин. инвестиция",
+    kk: "Мин. инвестиция",
+  },
+  "projectsPage.filter": {
+    en: "Filter",
+    ru: "Фильтр",
+    kk: "Сүзгі",
+  },
+  "projectsPage.clearFilters": {
+    en: "Clear Filters",
+    ru: "Сбросить фильтры",
+    kk: "Сүзгілерді тазалау",
+  },
+  "projectsPage.noProjects": {
+    en: "No projects found",
+    ru: "Проекты не найдены",
+    kk: "Жобалар табылмады",
+  },
+  "projectsPage.tryAdjusting": {
+    en: "Try adjusting your filters or search query",
+    ru: "Попробуйте изменить фильтры или поисковый запрос",
+    kk: "Сүзгілерді немесе іздеу сұрауын өзгертіп көріңіз",
+  },
+  "projectsPage.verified": {
+    en: "Verified",
+    ru: "Проверено",
+    kk: "Тексерілген",
+  },
+  "projectsPage.trending": {
+    en: "Trending",
+    ru: "В тренде",
+    kk: "Трендте",
+  },
+  "projectsPage.new": {
+    en: "New",
+    ru: "Новый",
+    kk: "Жаңа",
+  },
+  "projectsPage.creator": {
+    en: "Creator",
+    ru: "Создатель",
+    kk: "Жасаушы",
+  },
+  "projectsPage.blockchain": {
+    en: "Blockchain",
+    ru: "Блокчейн",
+    kk: "Блокчейн",
+  },
+  "projectsPage.technology": {
+    en: "Technology",
+    ru: "Технологии",
+    kk: "Технология",
+  },
+  "projectsPage.defi": {
+    en: "DeFi",
+    ru: "DeFi",
+    kk: "DeFi",
+  },
+  "projectsPage.nft": {
+    en: "NFT",
+    ru: "NFT",
+    kk: "NFT",
+  },
+  "projectsPage.gaming": {
+    en: "Gaming",
+    ru: "Игры",
+    kk: "Ойындар",
+  },
+  "projectsPage.social": {
+    en: "Social",
+    ru: "Социальные",
+    kk: "Әлеуметтік",
+  },
+  "projectsPage.infrastructure": {
+    en: "Infrastructure",
+    ru: "Инфраструктура",
+    kk: "Инфрақұрылым",
+  },
+};
+
+Object.assign(translations, projectsPageTranslations);
+
+// Creator Dashboard translations
+export const creatorDashboardTranslations: Translations = {
+  "creator.dashboard": {
+    en: "Creator Dashboard",
+    ru: "Панель создателя",
+    kk: "Жасаушы панелі",
+  },
+  "creator.myProjects": {
+    en: "My Projects",
+    ru: "Мои проекты",
+    kk: "Менің жобаларым",
+  },
+  "creator.overview": {
+    en: "Overview",
+    ru: "Обзор",
+    kk: "Шолу",
+  },
+  "creator.analytics": {
+    en: "Analytics",
+    ru: "Аналитика",
+    kk: "Аналитика",
+  },
+  "creator.backers": {
+    en: "Backers",
+    ru: "Спонсоры",
+    kk: "Демеушілер",
+  },
+  "creator.milestones": {
+    en: "Milestones",
+    ru: "Этапы",
+    kk: "Межелер",
+  },
+  "creator.updates": {
+    en: "Updates",
+    ru: "Обновления",
+    kk: "Жаңартулар",
+  },
+  "creator.settings": {
+    en: "Settings",
+    ru: "Настройки",
+    kk: "Баптаулар",
+  },
+  "creator.totalRaised": {
+    en: "Total Raised",
+    ru: "Всего собрано",
+    kk: "Барлығы жиналды",
+  },
+  "creator.totalBackers": {
+    en: "Total Backers",
+    ru: "Всего спонсоров",
+    kk: "Барлық демеушілер",
+  },
+  "creator.daysRemaining": {
+    en: "Days Remaining",
+    ru: "Осталось дней",
+    kk: "Қалған күндер",
+  },
+  "creator.fundingProgress": {
+    en: "Funding Progress",
+    ru: "Прогресс сбора",
+    kk: "Қаржыландыру барысы",
+  },
+  "creator.recentBackers": {
+    en: "Recent Backers",
+    ru: "Недавние спонсоры",
+    kk: "Соңғы демеушілер",
+  },
+  "creator.viewAll": {
+    en: "View All",
+    ru: "Смотреть все",
+    kk: "Барлығын көру",
+  },
+  "creator.milestoneProgress": {
+    en: "Milestone Progress",
+    ru: "Прогресс этапов",
+    kk: "Межелер барысы",
+  },
+  "creator.completed": {
+    en: "Completed",
+    ru: "Завершено",
+    kk: "Аяқталды",
+  },
+  "creator.inProgress": {
+    en: "In Progress",
+    ru: "В процессе",
+    kk: "Орындалуда",
+  },
+  "creator.pending": {
+    en: "Pending",
+    ru: "Ожидает",
+    kk: "Күтуде",
+  },
+  "creator.addMilestone": {
+    en: "Add Milestone",
+    ru: "Добавить этап",
+    kk: "Меже қосу",
+  },
+  "creator.postUpdate": {
+    en: "Post Update",
+    ru: "Опубликовать обновление",
+    kk: "Жаңартуды жариялау",
+  },
+  "creator.withdrawFunds": {
+    en: "Withdraw Funds",
+    ru: "Вывести средства",
+    kk: "Қаражатты шығару",
+  },
+  "creator.editProject": {
+    en: "Edit Project",
+    ru: "Редактировать проект",
+    kk: "Жобаны өңдеу",
+  },
+  "creator.projectStatus": {
+    en: "Project Status",
+    ru: "Статус проекта",
+    kk: "Жоба күйі",
+  },
+  "creator.active": {
+    en: "Active",
+    ru: "Активный",
+    kk: "Белсенді",
+  },
+  "creator.funded": {
+    en: "Funded",
+    ru: "Профинансирован",
+    kk: "Қаржыландырылған",
+  },
+  "creator.ended": {
+    en: "Ended",
+    ru: "Завершен",
+    kk: "Аяқталған",
+  },
+  "creator.draft": {
+    en: "Draft",
+    ru: "Черновик",
+    kk: "Жоба",
+  },
+  "creator.fundingGoal": {
+    en: "Funding Goal",
+    ru: "Цель сбора",
+    kk: "Қаржыландыру мақсаты",
+  },
+  "creator.raised": {
+    en: "Raised",
+    ru: "Собрано",
+    kk: "Жиналды",
+  },
+  "creator.transactions": {
+    en: "Transactions",
+    ru: "Транзакции",
+    kk: "Транзакциялар",
+  },
+  "creator.recentTransactions": {
+    en: "Recent Transactions",
+    ru: "Недавние транзакции",
+    kk: "Соңғы транзакциялар",
+  },
+  "creator.contribution": {
+    en: "Contribution",
+    ru: "Вклад",
+    kk: "Үлес",
+  },
+  "creator.withdrawal": {
+    en: "Withdrawal",
+    ru: "Вывод",
+    kk: "Шығару",
+  },
+  "creator.smartContractAddress": {
+    en: "Smart Contract Address",
+    ru: "Адрес смарт-контракта",
+    kk: "Смарт-келісімшарт мекенжайы",
+  },
+  "creator.walletBalance": {
+    en: "Wallet Balance",
+    ru: "Баланс кошелька",
+    kk: "Әмиян балансы",
+  },
+  "creator.availableToWithdraw": {
+    en: "Available to Withdraw",
+    ru: "Доступно для вывода",
+    kk: "Шығаруға қолжетімді",
+  },
+  "creator.lockedInMilestones": {
+    en: "Locked in Milestones",
+    ru: "Заблокировано в этапах",
+    kk: "Межелерде құлыпталған",
+  },
+  "creator.createNewProject": {
+    en: "Create New Project",
+    ru: "Создать новый проект",
+    kk: "Жаңа жоба жасау",
+  },
+  "creator.noProjects": {
+    en: "No projects yet",
+    ru: "Пока нет проектов",
+    kk: "Әзірге жоба жоқ",
+  },
+  "creator.startFirstProject": {
+    en: "Start your first crowdfunding campaign",
+    ru: "Начните свою первую краудфандинговую кампанию",
+    kk: "Алғашқы краудфандинг науқаныңызды бастаңыз",
+  },
+  "creator.quickActions": {
+    en: "Quick Actions",
+    ru: "Быстрые действия",
+    kk: "Жылдам әрекеттер",
+  },
+  "creator.fundingChart": {
+    en: "Funding Over Time",
+    ru: "Сбор средств по времени",
+    kk: "Уақыт бойынша қаржыландыру",
+  },
+  "creator.backersChart": {
+    en: "Backers Over Time",
+    ru: "Спонсоры по времени",
+    kk: "Уақыт бойынша демеушілер",
+  },
+  "creator.averageContribution": {
+    en: "Average Contribution",
+    ru: "Средний вклад",
+    kk: "Орташа үлес",
+  },
+  "creator.conversionRate": {
+    en: "Conversion Rate",
+    ru: "Конверсия",
+    kk: "Конверсия",
+  },
+  "creator.pageViews": {
+    en: "Page Views",
+    ru: "Просмотры страницы",
+    kk: "Бет қаралымдары",
+  },
+  "creator.shareRate": {
+    en: "Share Rate",
+    ru: "Доля распространения",
+    kk: "Бөлісу деңгейі",
+  },
+};
+
+Object.assign(translations, creatorDashboardTranslations);
+
+
+
+// Role selection and wallet translations
+export const roleTranslations: Translations = {
+  "wallet.connect": {
+    en: "Connect Wallet",
+    ru: "Подключить кошелек",
+    kk: "Әмиянды қосу",
+  },
+  "wallet.connecting": {
+    en: "Connecting...",
+    ru: "Подключение...",
+    kk: "Қосылуда...",
+  },
+  "wallet.connected": {
+    en: "Connected",
+    ru: "Подключено",
+    kk: "Қосылды",
+  },
+  "wallet.disconnect": {
+    en: "Disconnect",
+    ru: "Отключить",
+    kk: "Ажырату",
+  },
+  "wallet.title": {
+    en: "Connect Your",
+    ru: "Подключите",
+    kk: "Қосыңыз",
+  },
+  "wallet.titleHighlight": {
+    en: "Wallet",
+    ru: "кошелек",
+    kk: "әмиянды",
+  },
+  "wallet.subtitle": {
+    en: "Connect your crypto wallet to access the",
+    ru: "Подключите свой криптокошелек для доступа к",
+    kk: "Крипто әмиянды қосыңыз, қол жеткізу үшін",
+  },
+  "wallet.subtitleHighlight": {
+    en: "decentralized crowdfunding platform",
+    ru: "децентрализованной краудфандинговой платформе",
+    kk: "орталықсыздандырылған краудфандинг платформасына",
+  },
+  "wallet.metamask": {
+    en: "MetaMask",
+    ru: "MetaMask",
+    kk: "MetaMask",
+  },
+  "wallet.walletconnect": {
+    en: "WalletConnect",
+    ru: "WalletConnect",
+    kk: "WalletConnect",
+  },
+  "wallet.coinbase": {
+    en: "Coinbase Wallet",
+    ru: "Coinbase Wallet",
+    kk: "Coinbase Wallet",
+  },
+  "wallet.popular": {
+    en: "Popular",
+    ru: "Популярный",
+    kk: "Танымал",
+  },
+  "wallet.secure": {
+    en: "Your connection is secure and encrypted",
+    ru: "Ваше соединение защищено и зашифровано",
+    kk: "Сіздің байланысыңыз қауіпсіз және шифрланған",
+  },
+  "role.selectTitle": {
+    en: "How would you like to use ChainFund?",
+    ru: "Как вы хотите использовать ChainFund?",
+    kk: "ChainFund-ты қалай пайдаланғыңыз келеді?",
+  },
+  "role.selectSubtitle": {
+    en: "Choose your role to get started",
+    ru: "Выберите свою роль для начала",
+    kk: "Бастау үшін рөліңізді таңдаңыз",
+  },
+  "role.investor": {
+    en: "Investor",
+    ru: "Инвестор",
+    kk: "Инвестор",
+  },
+  "role.investorDesc": {
+    en: "Browse and fund innovative blockchain projects",
+    ru: "Просматривайте и финансируйте инновационные блокчейн-проекты",
+    kk: "Инновациялық блокчейн жобаларын қарап, қаржыландырыңыз",
+  },
+  "role.investorFeature1": {
+    en: "Discover verified projects",
+    ru: "Находите проверенные проекты",
+    kk: "Тексерілген жобаларды табыңыз",
+  },
+  "role.investorFeature2": {
+    en: "Track your investments",
+    ru: "Отслеживайте свои инвестиции",
+    kk: "Инвестицияларыңызды бақылаңыз",
+  },
+  "role.investorFeature3": {
+    en: "Support innovative ideas",
+    ru: "Поддерживайте инновационные идеи",
+    kk: "Инновациялық идеяларды қолдаңыз",
+  },
+  "role.creator": {
+    en: "Project Creator",
+    ru: "Создатель проекта",
+    kk: "Жоба жасаушы",
+  },
+  "role.creatorDesc": {
+    en: "Launch your crowdfunding campaign and raise funds",
+    ru: "Запустите свою краудфандинговую кампанию и соберите средства",
+    kk: "Краудфандинг науқаныңызды бастап, қаражат жинаңыз",
+  },
+  "role.creatorFeature1": {
+    en: "Create fundraising campaigns",
+    ru: "Создавайте сборы средств",
+    kk: "Қаражат жинау науқандарын жасаңыз",
+  },
+  "role.creatorFeature2": {
+    en: "Manage milestones",
+    ru: "Управляйте этапами",
+    kk: "Межелерді басқарыңыз",
+  },
+  "role.creatorFeature3": {
+    en: "Track funding progress",
+    ru: "Следите за прогрессом сбора",
+    kk: "Қаржыландыру барысын бақылаңыз",
+  },
+  "role.continue": {
+    en: "Continue",
+    ru: "Продолжить",
+    kk: "Жалғастыру",
+  },
+  "role.connectedAs": {
+    en: "Connected as",
+    ru: "Подключено как",
+    kk: "Қосылған",
+  },
+  "investor.activeCampaigns": {
+    en: "Active Campaigns",
+    ru: "Активные сборы",
+    kk: "Белсенді жинақтар",
+  },
+  "investor.myInvestments": {
+    en: "My Investments",
+    ru: "Мои инвестиции",
+    kk: "Менің инвестицияларым",
+  },
+  "investor.donate": {
+    en: "Donate",
+    ru: "Пожертвовать",
+    kk: "Қайырымдылық жасау",
+  },
+  "investor.donateAmount": {
+    en: "Enter donation amount",
+    ru: "Введите сумму пожертвования",
+    kk: "Қайырымдылық сомасын енгізіңіз",
+  },
+  "investor.confirmDonation": {
+    en: "Confirm Donation",
+    ru: "Подтвердить пожертвование",
+    kk: "Қайырымдылықты растау",
+  },
+  "investor.totalInvested": {
+    en: "Total Invested",
+    ru: "Всего инвестировано",
+    kk: "Барлығы инвестицияланған",
+  },
+  "investor.projectsBacked": {
+    en: "Projects Backed",
+    ru: "Поддержанные проекты",
+    kk: "Қолдау көрсетілген жобалар",
+  },
+};
+
+Object.assign(translations, roleTranslations);

@@ -8,8 +8,10 @@ const fontSans = Inter({ subsets: ["latin"], variable: "--font-sans" });
 export const metadata: Metadata = {
   title: "ChainFund - Decentralized Crowdfunding Platform",
   description: "Fund the future with blockchain-powered crowdfunding. Transparent, secure, and community-driven.",
-    generator: 'v0.app'
+  generator: 'v0.app'
 };
+
+import { WalletProvider } from "@/lib/wallet-context";
 
 export default function RootLayout({
   children,
@@ -21,7 +23,9 @@ export default function RootLayout({
       <body
         className="antialiased"
       >
-        {children}
+        <WalletProvider>
+          {children}
+        </WalletProvider>
       </body>
     </html>
   );
