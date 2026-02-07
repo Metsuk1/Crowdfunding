@@ -13,3 +13,5 @@ backend/cache/
 # logs
 npm-debug.log*
 pnpm-debug.log*
+
+nul

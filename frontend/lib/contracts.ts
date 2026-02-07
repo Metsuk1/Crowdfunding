@@ -6,14 +6,16 @@ export const CROWDFUNDING_ADDRESS = "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512"
 
 export const CROWDFUNDING_ABI = [
   "function campaignCount() view returns (uint256)",
-  "function campaigns(uint256) view returns (string title, uint256 goal, uint256 deadline, uint256 totalRaised, bool finalized)",
+  "function campaigns(uint256) view returns (string title, uint256 goal, uint256 deadline, uint256 totalRaised, bool finalized, address creator, bool withdrawn)",
   "function contributions(uint256, address) view returns (uint256)",
   "function createCampaign(string _title, uint256 _goal, uint256 _durationSeconds)",
   "function contribute(uint256 _campaignId) payable",
   "function finalizeCampaign(uint256 _campaignId)",
+  "function withdrawFunds(uint256 _campaignId)",
   "function token() view returns (address)",
-  "event CampaignCreated(uint256 id, string title, uint256 goal, uint256 deadline)",
+  "event CampaignCreated(uint256 id, string title, uint256 goal, uint256 deadline, address creator)",
   "event ContributionMade(uint256 id, address contributor, uint256 amount)",
+  "event FundsWithdrawn(uint256 id, address creator, uint256 amount)",
 ];
 
 export const CROWDTOKEN_ABI = [
@@ -31,6 +33,8 @@ export interface Campaign {
   deadline: number;    // unix timestamp
   totalRaised: string; // ETH string
   finalized: boolean;
+  creator: string;     // address
+  withdrawn: boolean;
   daysLeft: number;
   progress: number;
 }
@@ -74,6 +78,8 @@ export async function fetchCampaigns(): Promise<Campaign[]> {
       deadline,
       totalRaised: raisedEth,
       finalized: c.finalized,
+      creator: c.creator,
+      withdrawn: c.withdrawn,
       daysLeft,
       progress,
     });
@@ -114,6 +120,18 @@ export async function contributeTx(
   const tx = await contract.contribute(campaignId, {
     value: parseEther(amountEth),
   });
+  await tx.wait();
+  return tx.hash;
+}
+
+export async function withdrawFundsTx(campaignId: number): Promise<string> {
+  const provider = getProvider();
+  if (!provider) throw new Error("No wallet connected");
+
+  const signer = await provider.getSigner();
+  const contract = getCrowdfundingContract(signer);
+
+  const tx = await contract.withdrawFunds(campaignId);
   await tx.wait();
   return tx.hash;
 }

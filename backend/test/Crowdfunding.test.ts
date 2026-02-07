@@ -116,6 +116,8 @@ describe("Crowdfunding", function () {
       expect(campaign.goal).to.equal(goal);
       expect(campaign.totalRaised).to.equal(0n);
       expect(campaign.finalized).to.equal(false);
+      expect(campaign.creator).to.equal(creator.address);
+      expect(campaign.withdrawn).to.equal(false);
     });
 
     it("Should emit CampaignCreated event", async function () {
@@ -264,6 +266,97 @@ describe("Crowdfunding", function () {
       await expect(
         crowdfunding.finalizeCampaign(1)
       ).to.be.revertedWith("Deadline not reached");
+    });
+  });
+
+  describe("Withdraw Funds", function () {
+    it("Should allow creator to withdraw when goal is reached", async function () {
+      const { crowdfunding, creator, investor1 } = await deployCrowdfundingFixture();
+      const goal = ethers.parseEther("5");
+      await crowdfunding.connect(creator).createCampaign("Withdraw Test", goal, 86400);
+
+      // Fund the campaign to reach goal
+      await crowdfunding.connect(investor1).contribute(1, { value: ethers.parseEther("5") });
+
+      const balanceBefore = await ethers.provider.getBalance(creator.address);
+
+      const tx = await crowdfunding.connect(creator).withdrawFunds(1);
+      const receipt = await tx.wait();
+      const gasUsed = receipt.gasUsed * receipt.gasPrice;
+
+      const balanceAfter = await ethers.provider.getBalance(creator.address);
+
+      // Creator should receive 5 ETH minus gas
+      expect(balanceAfter - balanceBefore + gasUsed).to.equal(ethers.parseEther("5"));
+
+      const campaign = await crowdfunding.campaigns(1);
+      expect(campaign.withdrawn).to.equal(true);
+    });
+
+    it("Should emit FundsWithdrawn event", async function () {
+      const { crowdfunding, creator, investor1 } = await deployCrowdfundingFixture();
+      const goal = ethers.parseEther("5");
+      await crowdfunding.connect(creator).createCampaign("Event Test", goal, 86400);
+
+      await crowdfunding.connect(investor1).contribute(1, { value: ethers.parseEther("5") });
+
+      await expect(
+        crowdfunding.connect(creator).withdrawFunds(1)
+      )
+        .to.emit(crowdfunding, "FundsWithdrawn")
+        .withArgs(1, creator.address, ethers.parseEther("5"));
+    });
+
+    it("Should reject withdrawal by non-creator", async function () {
+      const { crowdfunding, creator, investor1 } = await deployCrowdfundingFixture();
+      const goal = ethers.parseEther("5");
+      await crowdfunding.connect(creator).createCampaign("Auth Test", goal, 86400);
+
+      await crowdfunding.connect(investor1).contribute(1, { value: ethers.parseEther("5") });
+
+      await expect(
+        crowdfunding.connect(investor1).withdrawFunds(1)
+      ).to.be.revertedWith("Only creator can withdraw");
+    });
+
+    it("Should reject withdrawal when goal not reached", async function () {
+      const { crowdfunding, creator, investor1 } = await deployCrowdfundingFixture();
+      const goal = ethers.parseEther("10");
+      await crowdfunding.connect(creator).createCampaign("Under Goal Test", goal, 86400);
+
+      await crowdfunding.connect(investor1).contribute(1, { value: ethers.parseEther("5") });
+
+      await expect(
+        crowdfunding.connect(creator).withdrawFunds(1)
+      ).to.be.revertedWith("Funding goal not reached");
+    });
+
+    it("Should reject double withdrawal", async function () {
+      const { crowdfunding, creator, investor1 } = await deployCrowdfundingFixture();
+      const goal = ethers.parseEther("5");
+      await crowdfunding.connect(creator).createCampaign("Double Test", goal, 86400);
+
+      await crowdfunding.connect(investor1).contribute(1, { value: ethers.parseEther("5") });
+
+      await crowdfunding.connect(creator).withdrawFunds(1);
+
+      await expect(
+        crowdfunding.connect(creator).withdrawFunds(1)
+      ).to.be.revertedWith("Funds already withdrawn");
+    });
+
+    it("Should allow withdrawal when overfunded", async function () {
+      const { crowdfunding, creator, investor1 } = await deployCrowdfundingFixture();
+      const goal = ethers.parseEther("5");
+      await crowdfunding.connect(creator).createCampaign("Overfund Test", goal, 86400);
+
+      await crowdfunding.connect(investor1).contribute(1, { value: ethers.parseEther("8") });
+
+      await expect(
+        crowdfunding.connect(creator).withdrawFunds(1)
+      )
+        .to.emit(crowdfunding, "FundsWithdrawn")
+        .withArgs(1, creator.address, ethers.parseEther("8"));
     });
   });
 });
