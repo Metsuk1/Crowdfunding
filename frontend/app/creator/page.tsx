@@ -25,6 +25,7 @@ import { useWallet } from "@/lib/wallet-context";
 import {
   fetchCampaigns,
   createCampaignTx,
+  withdrawFundsTx,
   CROWDFUNDING_ADDRESS,
   type Campaign,
 } from "@/lib/contracts";
@@ -41,6 +42,7 @@ import {
   FileText,
   Settings,
   Loader2,
+  DollarSign,
 } from "lucide-react";
 
 function CreateCampaignForm({ t, onCancel, onCreated }: { t: (key: string) => string; onCancel: () => void; onCreated: () => void }) {
@@ -206,10 +208,32 @@ function CreateCampaignForm({ t, onCancel, onCreated }: { t: (key: string) => st
   );
 }
 
-function CampaignMonitoring({ campaigns, t }: { campaigns: Campaign[]; t: (key: string) => string }) {
+function CampaignMonitoring({ campaigns, t, walletAddress, onWithdraw }: { campaigns: Campaign[]; t: (key: string) => string; walletAddress: string | null; onWithdraw: (campaignId: number) => Promise<void> }) {
+  const [withdrawingId, setWithdrawingId] = useState<number | null>(null);
+  const [withdrawError, setWithdrawError] = useState<string | null>(null);
+  const [withdrawSuccess, setWithdrawSuccess] = useState<number | null>(null);
+
+  const handleWithdraw = async (campaignId: number) => {
+    setWithdrawingId(campaignId);
+    setWithdrawError(null);
+    setWithdrawSuccess(null);
+    try {
+      await onWithdraw(campaignId);
+      setWithdrawSuccess(campaignId);
+    } catch (err: any) {
+      setWithdrawError(err?.reason || err?.message || "Withdrawal failed");
+    } finally {
+      setWithdrawingId(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
-      {campaigns.map((campaign) => (
+      {campaigns.map((campaign) => {
+        const isCreator = walletAddress && campaign.creator.toLowerCase() === walletAddress.toLowerCase();
+        const canWithdraw = isCreator && campaign.progress >= 100 && !campaign.withdrawn;
+
+        return (
         <Card key={campaign.id} className="border-border bg-card">
           <CardContent className="p-6">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
@@ -222,10 +246,46 @@ function CampaignMonitoring({ campaigns, t }: { campaigns: Campaign[]; t: (key: 
                   }>
                     {campaign.finalized ? t("creator.completed") || "Completed" : t("creator.active")}
                   </Badge>
+                  {campaign.withdrawn && (
+                    <Badge className="bg-blue-500/20 text-blue-500 border-blue-500/30">
+                      {t("creator.withdrawn")}
+                    </Badge>
+                  )}
                 </div>
                 <p className="text-sm text-muted-foreground">Campaign #{campaign.id}</p>
               </div>
+              {canWithdraw && (
+                <Button
+                  onClick={() => handleWithdraw(campaign.id)}
+                  disabled={withdrawingId === campaign.id}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  {withdrawingId === campaign.id ? (
+                    <div className="flex items-center gap-2">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      {t("creator.withdrawing")}
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="w-4 h-4" />
+                      {t("creator.withdrawFunds")}
+                    </div>
+                  )}
+                </Button>
+              )}
             </div>
+
+            {withdrawError && withdrawingId === null && (
+              <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-500 text-sm">
+                {withdrawError}
+              </div>
+            )}
+
+            {withdrawSuccess === campaign.id && (
+              <div className="mb-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg text-green-500 text-sm">
+                {t("creator.withdrawSuccess")}
+              </div>
+            )}
 
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               <div className="p-4 bg-secondary rounded-lg">
@@ -255,7 +315,7 @@ function CampaignMonitoring({ campaigns, t }: { campaigns: Campaign[]; t: (key: 
                   <span className="text-sm">Status</span>
                 </div>
                 <p className="text-2xl font-bold text-foreground">
-                  {campaign.finalized ? "Finalized" : campaign.daysLeft > 0 ? "Active" : "Ended"}
+                  {campaign.withdrawn ? t("creator.withdrawn") : campaign.finalized ? "Finalized" : campaign.daysLeft > 0 ? "Active" : "Ended"}
                 </p>
               </div>
             </div>
@@ -269,7 +329,8 @@ function CampaignMonitoring({ campaigns, t }: { campaigns: Campaign[]; t: (key: 
             </div>
           </CardContent>
         </Card>
-      ))}
+      );
+      })}
 
       {/* Smart Contract Info */}
       <Card className="border-border bg-card">
@@ -358,10 +419,12 @@ function CreatorContent() {
                 <BarChart3 className="w-4 h-4 mr-2" />
                 {t("creator.overview")}
               </Button>
-              <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-foreground">
-                <FileText className="w-4 h-4 mr-2" />
-                {t("creator.myProjects")}
-              </Button>
+              <Link href="/my-projects">
+                <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-foreground">
+                  <FileText className="w-4 h-4 mr-2" />
+                  {t("creator.myProjects")}
+                </Button>
+              </Link>
               <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-foreground">
                 <Users className="w-4 h-4 mr-2" />
                 {t("creator.backers")}
@@ -409,7 +472,15 @@ function CreatorContent() {
                 <Loader2 className="w-8 h-8 animate-spin text-accent" />
               </div>
             ) : hasExistingCampaign ? (
-              <CampaignMonitoring campaigns={campaigns} t={t} />
+              <CampaignMonitoring
+                campaigns={campaigns}
+                t={t}
+                walletAddress={walletAddress}
+                onWithdraw={async (campaignId) => {
+                  await withdrawFundsTx(campaignId);
+                  loadCampaigns();
+                }}
+              />
             ) : (
               <Card className="border-border bg-card">
                 <CardContent className="p-12 text-center">

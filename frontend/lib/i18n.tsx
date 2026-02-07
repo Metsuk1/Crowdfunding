@@ -1293,3 +1293,49 @@ export const roleTranslations: Translations = {
 };
 
 Object.assign(translations, roleTranslations);
+
+// Withdraw & My Projects translations
+export const withdrawTranslations: Translations = {
+  "creator.withdrawn": {
+    en: "Withdrawn",
+    ru: "Выведено",
+    kk: "Шығарылды",
+  },
+  "creator.fundsWithdrawn": {
+    en: "Funds have been withdrawn",
+    ru: "Средства были выведены",
+    kk: "Қаражат шығарылды",
+  },
+  "creator.withdrawSuccess": {
+    en: "Withdrawal successful!",
+    ru: "Вывод средств успешен!",
+    kk: "Шығару сәтті болды!",
+  },
+  "creator.withdrawing": {
+    en: "Withdrawing...",
+    ru: "Выведение...",
+    kk: "Шығарылуда...",
+  },
+  "myProjects.title": {
+    en: "My Projects",
+    ru: "Мои проекты",
+    kk: "Менің жобаларым",
+  },
+  "myProjects.subtitle": {
+    en: "Campaigns created by your wallet",
+    ru: "Кампании, созданные вашим кошельком",
+    kk: "Әмияныңыз жасаған науқандар",
+  },
+  "myProjects.noProjects": {
+    en: "You haven't created any projects yet",
+    ru: "Вы еще не создали ни одного проекта",
+    kk: "Сіз әлі жоба жасаған жоқсыз",
+  },
+  "myProjects.createFirst": {
+    en: "Go to the Creator Dashboard to start your first campaign",
+    ru: "Перейдите в панель создателя, чтобы начать первую кампанию",
+    kk: "Алғашқы науқаныңызды бастау үшін жасаушы панеліне өтіңіз",
+  },
+};
+
+Object.assign(translations, withdrawTranslations);
